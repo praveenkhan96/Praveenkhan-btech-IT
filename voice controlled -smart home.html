@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Controlled Smart Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f0f4f8;
+    }
+
+    .device {
+      margin: 20px auto;
+      padding: 10px;
+      width: 200px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      font-size: 20px;
+    }
+
+    .status {
+      font-weight: bold;
+      color: red;
+    }
+
+    .status.on {
+      color: green;
+    }
+
+    #start-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏠 Voice Controlled Smart Home</h1>
+
+  <div class="device" id="light">
+    💡 Light: <span class="status">OFF</span>
+  </div>
+  <div class="device" id="fan">
+    🌬️ Fan: <span class="status">OFF</span>
+  </div>
+  <div class="device" id="tv">
+    📺 TV: <span class="status">OFF</span>
+  </div>
+
+  <button id="start-btn">🎤 Start Listening</button>
+  <p id="command">Say a command...</p>
+
+  <script>
+    const light = document.querySelector('#light .status');
+    const fan = document.querySelector('#fan .status');
+    const tv = document.querySelector('#tv .status');
+    const commandDisplay = document.getElementById('command');
+
+    function setDeviceStatus(device, status) {
+      device.textContent = status ? 'ON' : 'OFF';
+      device.classList.toggle('on', status);
+    }
+
+    function handleCommand(text) {
+      const command = text.toLowerCase();
+      commandDisplay.textContent = "Heard: " + command;
+
+      if (command.includes('turn on the light')) {
+        setDeviceStatus(light, true);
+      } else if (command.includes('turn off the light')) {
+        setDeviceStatus(light, false);
+      } else if (command.includes('turn on the fan')) {
+        setDeviceStatus(fan, true);
+      } else if (command.includes('turn off the fan')) {
+        setDeviceStatus(fan, false);
+      } else if (command.includes('turn on the tv')) {
+        setDeviceStatus(tv, true);
+      } else if (command.includes('turn off the tv')) {
+        setDeviceStatus(tv, false);
+      } else if (command.includes('turn everything off')) {
+        setDeviceStatus(light, false);
+        setDeviceStatus(fan, false);
+        setDeviceStatus(tv, false);
+      } else {
+        commandDisplay.textContent = "Unrecognized command: " + command;
+      }
+    }
+
+    document.getElementById('start-btn').addEventListener('click', () => {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Voice recognition not supported in this browser.');
+        return;
+      }
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        handleCommand(transcript);
+      };
+
+      recognition.onerror = function(event) {
+        commandDisplay.textContent = "Error: " + event.error;
+      };
+    });
+  </script>
+</body>
+</html>
